@@ -15,7 +15,7 @@ app.use(cookieParser());
 // origin: "http://localhost:3000",
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://localhost:5173",
   credentials: true,
 };
 
@@ -29,11 +29,11 @@ app.use(
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
-    message: "welcome to ,GYM backend API!",
+    message: "welcome to , backend API!",
   });
 });
 
-app.use("/api", router);
+app.use("/api/v1", router);
 
 // app.use(globalErrorHandler);
 app.use((req: Request, res: Response, next: NextFunction) => {
