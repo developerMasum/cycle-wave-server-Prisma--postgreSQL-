@@ -1,0 +1,12 @@
+node_modules
+# Keep environment variables out of version control
+
+
+.vercel
+
+dist 
+
+.vercel
+
+.vercel
+.env
