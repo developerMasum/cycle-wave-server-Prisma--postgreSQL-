@@ -33,20 +33,10 @@ const getAllUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteUser = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await userService.deleteUser(id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "User Deleted successfully!",
-    data: result,
-  });
-});
-
-const getMyself = catchAsync(async (req: Request, res: Response) => {
+const getMe = catchAsync(async (req: Request, res: Response) => {
   const authorization: string = req.headers.authorization || "";
-  const result = await userService.getMyself(authorization);
+  console.log(authorization);
+  const result = await userService.getMe(authorization);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -54,21 +44,9 @@ const getMyself = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const updateMyself = catchAsync(async (req: Request, res: Response) => {
-  const authorization: string = req.headers.authorization || "";
-  const result = await userService.updateMyself(authorization, req.body);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "My own updated successfully!",
-    data: result,
-  });
-});
 
 export const userController = {
   createUser,
-  deleteUser,
   getAllUser,
-  getMyself,
-  updateMyself,
+  getMe,
 };

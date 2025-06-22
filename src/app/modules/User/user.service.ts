@@ -101,35 +101,33 @@ const createUserIntoDB = async (userData: any) => {
 //   return result;
 // };
 
-// const getMyself = async (token: string) => {
-//   try {
-//     // Verify the token and extract the user ID
-//     const verifiedUser = jwtHelpers.verifyToken(
-//       token,
-//       config.jwt.jwt_secret as Secret
-//     );
-//     console.log("Verified User:", verifiedUser);
+const getMe = async (token: string) => {
+  console.log("Token:", token);
+  try {
+    // Verify the token and extract the user ID
+    const verifiedUser = jwtHelpers.verifyToken(
+      token,
+      config.jwt.jwt_secret as Secret
+    );
+    console.log("Verified User:", verifiedUser);
 
-//     const userId = verifiedUser.id;
-//     console.log("User ID:", userId);
+    const userId = verifiedUser.id;
+    console.log("User ID:", userId);
 
-//     // Fetch the user with profile included
-//     const result = await prisma.user.findUniqueOrThrow({
-//       where: {
-//         id: userId,
-//       },
-//       include: {
-//         userProfile: true,
-//       },
-//     });
+    // Fetch the user with profile included
+    const result = await prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId,
+      },
+    });
 
-//     console.log("Fetched user with profile:", result);
-//     return result;
-//   } catch (error) {
-//     console.error("Error fetching user or profile:", error);
-//     throw new Error("User or Profile not found");
-//   }
-// };
+    console.log("Fetched user with profile:", result);
+    return result;
+  } catch (error) {
+    console.error("Error fetching user or profile:", error);
+    throw new Error("User or Profile not found");
+  }
+};
 // const updateMyself = async (token: string, data: any) => {
 //   console.log("Data:", data);
 //   try {
@@ -164,6 +162,6 @@ export const userService = {
   createUserIntoDB,
   // deleteUser,
   // getAllUser,
-  // getMyself,
+  getMe,
   // updateMyself,
 };

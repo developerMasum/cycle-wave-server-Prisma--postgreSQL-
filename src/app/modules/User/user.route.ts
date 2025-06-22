@@ -4,6 +4,7 @@ import { userController } from "./user.controller";
 import { userValidation } from "./user.validation";
 import { ZodError } from "../../Interfaces/errorSource";
 import auth from "../../middleware/auth";
+import { Role } from "@prisma/client";
 
 const router = express.Router();
 
@@ -39,13 +40,9 @@ router.post("/", (req: Request, res: Response, next: NextFunction) => {
     }
   }
 });
-router.get(
-  "/get-me",
-
-  userController.getMyself
-);
-router.patch("/get-me", userController.updateMyself);
+router.get("/me", auth("USER"), userController.getMe);
 router.get("/users", userController.getAllUser);
-router.delete("/users/:id", userController.deleteUser);
+// router.delete("/users/:id", userController.deleteUser);
+// router.patch("/get-me", userController.updateMyself);
 
 export const UserRoutes = router;

@@ -18,25 +18,84 @@ model User {
   isBlock       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  Order         Order[]
+
+  @@map("users")
 }
 
 model Product {
-  id                String   @id @default(uuid())
-  name              String?
-  brand             String?
-  price             Float
-  category          String
-  wheelSize         Int?
-  frameMaterial     String
-  quantity          Int
-  images            String[]
-  specifications    Json
-  description       String
-  isDeleted         Boolean?
-  totalQuantitySold Int      @default(0)
-  totalRevenue      Float    @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                    String                  @id @default(uuid())
+  name                  String?
+  brand                 String?
+  price                 Float
+  category              String
+  wheelSize             Int?
+  frameMaterial         String
+  quantity              Int
+  images                String[]
+  specifications        Json
+  description           String
+  isDeleted             Boolean?                @default(false)
+  totalQuantitySold     Int                     @default(0)
+  totalRevenue          Float                   @default(0)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  orderedproductDetails OrderedproductDetails[]
+
+  @@map("products")
+}
+
+model Order {
+  id      String @id @default(uuid())
+  name    String
+  email   String
+  contact String
+  address String
+
+  userId   String                  @unique
+  user     User                    @relation(fields: [userId], references: [id])
+  products OrderedproductDetails[]
+
+  totalPrice     Float
+  status         OrderStatus   @default(PENDING)
+  paymentStatus  PaymentStatus @default(PENDING)
+  transactionId  String?
+  paymentMethod  PaymentMethod
+  deliveryCharge Float         @default(120)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model OrderedproductDetails {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  name      String?
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  ONLINE_PAYMENT
 }
 
 enum Role {
