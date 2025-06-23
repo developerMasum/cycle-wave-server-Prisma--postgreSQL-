@@ -4,13 +4,41 @@ import initiatePayment from "../payment/payment.utils";
 
 // Type for incoming order data
 interface OrderInput {
+  id: string;
   name: string;
   email: string;
   contact: string;
   address: string;
-  userId: string;
+  userId?: string;
   deliveryCharge: number;
-  paymentMethod: PaymentMethod; // ✅ Use the enum type from Prisma
+  paymentMethod: string; // incoming value: "Cash On Delivery" or "Online Payment"
+  products: Array<{
+    product: string;
+    quantity: number;
+    name?: string;
+  }>;
+}
+
+// Helper function to map incoming string to Prisma enum
+const mapPaymentMethod = (method: string): PaymentMethod => {
+  switch (method.toLowerCase()) {
+    case "cash on delivery":
+      return PaymentMethod.CASH_ON_DELIVERY;
+    case "online payment":
+      return PaymentMethod.ONLINE_PAYMENT;
+    default:
+      throw new Error("Invalid payment method");
+  }
+};
+
+interface OrderInput {
+  name: string;
+  email: string;
+  contact: string;
+  address: string;
+  id: string; // ✅ rename `id` to `userId` here
+  deliveryCharge: number;
+  paymentMethod: string;
   products: Array<{
     product: string;
     quantity: number;
@@ -24,13 +52,16 @@ const createOrder = async (orderData: OrderInput) => {
     email,
     contact,
     address,
+    userId,
+    deliveryCharge,
     paymentMethod,
     products,
-    deliveryCharge,
-    userId,
   } = orderData;
 
-  // 1️⃣ Recalculate total price
+  if (!userId || !deliveryCharge) {
+    throw new Error("Missing required fields: userId or deliveryCharge");
+  }
+
   let totalPrice = 0;
 
   const productItems = await Promise.all(
@@ -40,8 +71,7 @@ const createOrder = async (orderData: OrderInput) => {
       });
       if (!product) throw new Error(`Product ${item.product} not found`);
 
-      const itemTotal = product.price * item.quantity;
-      totalPrice += itemTotal;
+      totalPrice += product.price * item.quantity;
 
       return {
         productId: product.id,
@@ -51,7 +81,6 @@ const createOrder = async (orderData: OrderInput) => {
     })
   );
 
-  // 2️⃣ Create order with nested ProductOrder
   const transactionId = `TXN-${Date.now()}`;
 
   const newOrder = await prisma.order.create({
@@ -60,16 +89,22 @@ const createOrder = async (orderData: OrderInput) => {
       email,
       contact,
       address,
-      userId,
-      paymentMethod, // ✅ already matches enum
       transactionId,
+      user: {
+        connect: {
+          id: userId, // ✅ now properly passed
+        },
+      },
+      paymentMethod: mapPaymentMethod(paymentMethod),
       deliveryCharge,
       totalPrice,
       status: "PENDING",
       paymentStatus: "PENDING",
       products: {
         create: productItems.map((item) => ({
-          product: { connect: { id: item.productId } },
+          product: {
+            connect: { id: item.productId },
+          },
           quantity: item.quantity,
           name: item.name,
         })),
@@ -80,14 +115,12 @@ const createOrder = async (orderData: OrderInput) => {
     },
   });
 
-  // 3️⃣ Return immediately for COD
-  if (paymentMethod === PaymentMethod.CASH_ON_DELIVERY) {
+  if (mapPaymentMethod(paymentMethod) === PaymentMethod.CASH_ON_DELIVERY) {
     return newOrder;
   }
 
-  // 4️⃣ Otherwise, initiate online payment
   const paymentSession = await initiatePayment({
-    _id: newOrder.id,
+    id: newOrder.id,
     totalPrice,
     transactionId,
     name,
@@ -99,6 +132,31 @@ const createOrder = async (orderData: OrderInput) => {
   return paymentSession;
 };
 
+const getAllOrders = async (filters: any, options: any) => {
+  const result = await prisma.order.findMany();
+  return result;
+};
+
+const getMyOrders = async (email: string) => {
+  const result = await prisma.order.findMany({
+    where: {
+      email: email,
+    },
+  });
+  return result;
+};
+const getOrderById = async (id: string) => {
+  const result = await prisma.order.findUnique({
+    where: {
+      id: id,
+    },
+  });
+  return result;
+};
+
 export const orderService = {
   createOrder,
+  getAllOrders,
+  getMyOrders,
+  getOrderById,
 };
