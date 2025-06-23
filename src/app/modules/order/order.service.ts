@@ -1,6 +1,9 @@
 import { PaymentMethod } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import initiatePayment from "../payment/payment.utils";
+import { jwtHelpers } from "../../../Helpers/jwtHealpers";
+import { Secret } from "jsonwebtoken";
+import config from "../../../config";
 
 // Type for incoming order data
 interface OrderInput {
@@ -137,14 +140,33 @@ const getAllOrders = async (filters: any, options: any) => {
   return result;
 };
 
-const getMyOrders = async (email: string) => {
-  const result = await prisma.order.findMany({
-    where: {
-      email: email,
-    },
-  });
-  return result;
+const getMyOrdersData = async (token: string) => {
+  console.log("Token:", token);
+  try {
+    // Verify the token and extract the user ID
+    const verifiedUser = jwtHelpers.verifyToken(
+      token,
+      config.jwt.jwt_secret as Secret
+    );
+    console.log("Verified User:", verifiedUser);
+
+    const userId = verifiedUser.id;
+    console.log("User ID:", userId);
+
+    // Fetch the user profile and update it
+    const result = await prisma.order.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error("Error updating user profile:", error.message || error);
+    throw new Error("Error updating user profile");
+  }
 };
+
 const getOrderById = async (id: string) => {
   const result = await prisma.order.findUnique({
     where: {
@@ -157,6 +179,6 @@ const getOrderById = async (id: string) => {
 export const orderService = {
   createOrder,
   getAllOrders,
-  getMyOrders,
+  getMyOrdersData,
   getOrderById,
 };

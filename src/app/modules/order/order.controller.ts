@@ -41,11 +41,23 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const getMyOrders = catchAsync(async (req, res) => {
-  const { email } = req.params;
-  // console.log(user);
 
-  const result = await orderService.getMyOrders(email);
+const getOrderById = catchAsync(async (req: Request, res: Response) => {
+  const result = await orderService.getOrderById(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Orders retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyOrdersData = catchAsync(async (req, res) => {
+  const authorization: string = req.headers.authorization || "";
+
+  console.log(authorization);
+
+  const result = await orderService.getMyOrdersData(authorization);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -54,18 +66,9 @@ const getMyOrders = catchAsync(async (req, res) => {
     data: result,
   });
 });
-const getOrderById = catchAsync(async (req: Request, res: Response) => {
-  const result = await orderService.getOrderById(req.params.id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Order retrieved successfully",
-    data: result,
-  });
-});
 export const OrderController = {
   createOrderController,
   getAllOrders,
-  getMyOrders,
+  getMyOrdersData,
   getOrderById,
 };

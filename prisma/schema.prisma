@@ -52,7 +52,7 @@ model Order {
   contact String
   address String
 
-  userId   String                  @unique
+  userId   String
   user     User                    @relation(fields: [userId], references: [id])
   products OrderedproductDetails[]
 

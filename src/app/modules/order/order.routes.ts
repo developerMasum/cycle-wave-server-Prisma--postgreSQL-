@@ -7,7 +7,7 @@ const router = Router();
 router.get("/:id", OrderController.getOrderById);
 router.post("/checkout", OrderController.createOrderController);
 router.get("/", OrderController.getAllOrders);
-router.get("/my-orders/:id", OrderController.getMyOrders);
+router.get("/my-orders", OrderController.getMyOrdersData);
 // router.patch("/status/:id", OrderController.updateOrderStatus);
 // router.delete("/:id", OrderController.deleteOrder);
 
