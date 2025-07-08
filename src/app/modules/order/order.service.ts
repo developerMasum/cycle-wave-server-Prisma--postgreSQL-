@@ -150,13 +150,16 @@ const getMyOrdersData = async (token: string) => {
     );
     console.log("Verified User:", verifiedUser);
 
-    const userId = verifiedUser.id;
+    const userId = verifiedUser?.id;
     console.log("User ID:", userId);
 
     // Fetch the user profile and update it
     const result = await prisma.order.findMany({
       where: {
         userId: userId,
+      },
+      include: {
+        products: true,
       },
     });
 

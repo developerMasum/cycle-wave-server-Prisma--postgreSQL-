@@ -43,6 +43,6 @@ router.post("/", (req: Request, res: Response, next: NextFunction) => {
 router.get("/me", auth("USER"), userController.getMe);
 router.get("/users", userController.getAllUser);
 // router.delete("/users/:id", userController.deleteUser);
-// router.patch("/get-me", userController.updateMyself);
-
+router.patch("/me", userController.updateMyself);
+// todo: add update here
 export const UserRoutes = router;

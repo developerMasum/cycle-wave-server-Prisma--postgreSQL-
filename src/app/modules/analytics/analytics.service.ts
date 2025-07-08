@@ -59,14 +59,14 @@ const analyticsOrders = async () => {
             100,
     },
     usersData: {
-      total: new Set(orders.map((o) => o.email)).size,
-      lastMonthTotal: new Set(lastMonthOrders.map((o) => o.email)).size,
+      total: new Set(orders.map((o) => o.user?.email)).size,
+      lastMonthTotal: new Set(lastMonthOrders.map((o) => o.user?.email)).size,
       percentageChange:
         lastMonthOrders.length === 0
           ? 100
-          : ((new Set(thisMonthOrders.map((o) => o.email)).size -
-              new Set(lastMonthOrders.map((o) => o.email)).size) /
-              new Set(lastMonthOrders.map((o) => o.email)).size) *
+          : ((new Set(thisMonthOrders.map((o) => o.user?.email)).size -
+              new Set(lastMonthOrders.map((o) => o.user?.email)).size) /
+              new Set(lastMonthOrders.map((o) => o.user?.email)).size) *
             100,
     },
   };

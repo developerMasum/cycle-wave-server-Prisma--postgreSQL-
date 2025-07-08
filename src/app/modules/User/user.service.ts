@@ -25,81 +25,81 @@ const createUserIntoDB = async (userData: any) => {
   }
 };
 
-// const getAllUser = async (params: any, options: IPaginationOptions) => {
-//   const { page, limit, skip } = paginationHelper.calculatePagination(options);
-//   const { searchTerm, ...filterData } = params;
+const getAllUser = async (params: any, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
 
-//   const andConditions: Prisma.UserWhereInput[] = [];
+  const andConditions: Prisma.UserWhereInput[] = [];
 
-//   //console.log(filterData);
-//   if (params.searchTerm) {
-//     andConditions.push({
-//       OR: userSearchAbleFields.map((field) => ({
-//         [field]: {
-//           contains: params.searchTerm,
-//           mode: "insensitive",
-//         },
-//       })),
-//     });
-//   }
+  //console.log(filterData);
+  if (params.searchTerm) {
+    andConditions.push({
+      OR: userSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
 
-//   if (Object.keys(filterData).length > 0) {
-//     andConditions.push({
-//       AND: Object.keys(filterData).map((key) => ({
-//         [key]: {
-//           equals: (filterData as any)[key],
-//         },
-//       })),
-//     });
-//   }
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
 
-//   const whereConditions: Prisma.UserWhereInput =
-//     andConditions.length > 0 ? { AND: andConditions } : {};
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
-//   const result = await prisma.user.findMany({
-//     where: whereConditions,
-//     skip,
-//     take: limit,
-//     orderBy:
-//       options.sortBy && options.sortOrder
-//         ? {
-//             [options.sortBy]: options.sortOrder,
-//           }
-//         : {
-//             createdAt: "desc",
-//           },
-//     select: {
-//       id: true,
-//       name: true,
-//       email: true,
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+    select: {
+      id: true,
+      name: true,
+      email: true,
 
-//       createdAt: true,
-//       updatedAt: true,
-//     },
-//   });
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
-//   const total = await prisma.user.count({
-//     where: whereConditions,
-//   });
+  const total = await prisma.user.count({
+    where: whereConditions,
+  });
 
-//   return {
-//     meta: {
-//       page,
-//       limit,
-//       total,
-//     },
-//     data: result,
-//   };
-// };
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
-// const deleteUser = async (id: any) => {
-//   const result = await prisma.user.delete({
-//     where: {
-//       id,
-//     },
-//   });
-//   return result;
-// };
+const deleteUser = async (id: any) => {
+  const result = await prisma.user.delete({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
 
 const getMe = async (token: string) => {
   console.log("Token:", token);
@@ -128,40 +128,40 @@ const getMe = async (token: string) => {
     throw new Error("User or Profile not found");
   }
 };
-// const updateMyself = async (token: string, data: any) => {
-//   console.log("Data:", data);
-//   try {
-//     // Verify the token and extract the user ID
-//     const verifiedUser = jwtHelpers.verifyToken(
-//       token,
-//       config.jwt.jwt_secret as Secret
-//     );
-//     // console.log("Verified User:", verifiedUser);
+const updateMyself = async (token: string, data: any) => {
+  console.log("Data:", data);
+  try {
+    const verifiedUser = jwtHelpers.verifyToken(
+      token,
+      config.jwt.jwt_secret as Secret
+    );
+    console.log("Verified User:", verifiedUser);
 
-//     const userId = verifiedUser.id;
-//     // console.log("User ID:", userId);
+    const userId = verifiedUser.id;
 
-//     // Fetch the user profile and update it
-//     const result = await prisma.userProfile.update({
-//       where: {
-//         userId: userId,
-//       },
-//       data: {
-//         ...data,
-//       },
-//     });
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) throw new Error("User not found");
 
-//     return result;
-//   } catch (error: any) {
-//     console.error("Error updating user profile:", error.message || error);
-//     throw new Error("Error updating user profile");
-//   }
-// };
+    const result = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        ...data,
+      },
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error("Full Error Stack:", error);
+    throw new Error(error.message || "Error updating user profile");
+  }
+};
 
 export const userService = {
   createUserIntoDB,
   // deleteUser,
-  // getAllUser,
+  getAllUser,
   getMe,
-  // updateMyself,
+  updateMyself,
 };
