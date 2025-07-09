@@ -8,7 +8,7 @@ router.get("/:id", OrderController.getOrderById);
 router.post("/checkout", OrderController.createOrderController);
 router.get("/", OrderController.getAllOrders);
 router.get("/my/my-orders", OrderController.getMyOrdersData);
-// router.patch("/status/:id", OrderController.updateOrderStatus);
-// router.delete("/:id", OrderController.deleteOrder);
+router.patch("/status/:id", OrderController.updateOrderStatus);
+router.delete("/:id", OrderController.deleteOrder);
 
 export const orderRoutes = router;

@@ -1,9 +1,12 @@
-import { PaymentMethod } from "@prisma/client";
+import { PaymentMethod, Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import initiatePayment from "../payment/payment.utils";
 import { jwtHelpers } from "../../../Helpers/jwtHealpers";
 import { Secret } from "jsonwebtoken";
 import config from "../../../config";
+import { paginationHelper } from "../../../Helpers/paginationHelpers";
+import { IPaginationOptions } from "../../Interfaces/IPaginationOptions";
+import { orderFilterableFields, orderSearchAbleFields } from "./order.utils";
 
 // Type for incoming order data
 interface OrderInput {
@@ -135,9 +138,78 @@ const createOrder = async (orderData: OrderInput) => {
   return paymentSession;
 };
 
-const getAllOrders = async (filters: any, options: any) => {
-  const result = await prisma.order.findMany();
-  return result;
+const getAllOrders = async (filters: any, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, sort } = filters;
+
+  const andConditions: Prisma.OrderWhereInput[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: orderSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  // Exclude `searchTerm` from filter loop
+  for (const field of orderFilterableFields) {
+    if (field !== "searchTerm" && filters[field]) {
+      andConditions.push({
+        [field]: {
+          equals: filters[field],
+        },
+      });
+    }
+  }
+
+  const whereConditions: Prisma.OrderWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  let sortBy = "createdAt";
+  let sortOrder: "asc" | "desc" = "desc";
+
+  if (typeof sort === "string") {
+    if (sort.startsWith("-")) {
+      sortBy = sort.slice(1);
+      sortOrder = "desc";
+    } else {
+      sortBy = sort;
+      sortOrder = "asc";
+    }
+  }
+
+  const data = await prisma.order.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    select: {
+      id: true,
+      name: true,
+      contact: true,
+      address: true,
+      status: true,
+      paymentStatus: true,
+      paymentMethod: true,
+      totalPrice: true,
+      deliveryCharge: true,
+      transactionId: true,
+      createdAt: true,
+    },
+  });
+
+  const total = await prisma.order.count({ where: whereConditions });
+
+  return {
+    meta: { page, limit, total },
+    data: data,
+  };
 };
 
 const getMyOrdersData = async (token: string) => {
@@ -178,10 +250,34 @@ const getOrderById = async (id: string) => {
   });
   return result;
 };
+const updateOrderStatus = async (id: string, data: any) => {
+  const result = await prisma.order.update({
+    where: {
+      id: id,
+    },
+    data: {
+      status: data.status,
+    },
+  });
+  return result;
+};
+const deleteOrder = async (id: string) => {
+  await prisma.orderedproductDetails.deleteMany({
+    where: { orderId: id },
+  });
+
+  const result = await prisma.order.delete({
+    where: { id },
+  });
+
+  return result;
+};
 
 export const orderService = {
   createOrder,
   getAllOrders,
   getMyOrdersData,
   getOrderById,
+  updateOrderStatus,
+  deleteOrder,
 };

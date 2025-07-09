@@ -54,10 +54,20 @@ const updateMyself = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const userBlockUnblock = catchAsync(async (req, res) => {
+  const result = await userService.userBlockUnblock(req.params.id);
 
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "UserToggle is updated successfully",
+    data: result,
+  });
+});
 export const userController = {
   createUser,
   getAllUser,
   getMe,
   updateMyself,
+  userBlockUnblock,
 };

@@ -72,6 +72,10 @@ const getAllUser = async (params: any, options: IPaginationOptions) => {
       id: true,
       name: true,
       email: true,
+      role: true,
+      contactNumber: true,
+      isBlock: true,
+      isDeleted: true,
 
       createdAt: true,
       updatedAt: true,
@@ -157,6 +161,20 @@ const updateMyself = async (token: string, data: any) => {
     throw new Error(error.message || "Error updating user profile");
   }
 };
+const userBlockUnblock = async (id: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id },
+  });
+
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: {
+      isBlock: !user.isBlock,
+    },
+  });
+
+  return updatedUser;
+};
 
 export const userService = {
   createUserIntoDB,
@@ -164,4 +182,5 @@ export const userService = {
   getAllUser,
   getMe,
   updateMyself,
+  userBlockUnblock,
 };

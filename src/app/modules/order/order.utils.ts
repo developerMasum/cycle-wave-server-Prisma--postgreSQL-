@@ -1,14 +1,9 @@
-// order.utils.ts
-export const orderSearchableFields = [
-  "user.name",
-  "user.email",
-  "user.phone",
-  "user.address",
-  "paymentMethod",
-  "paymentStatus",
-  "status",
-  "transactionId",
-  "products.name",
-];
+// order.constant.ts
+export const orderSearchAbleFields = ["name", "contact", "address"];
 
-export const orderFilterableFields = ["searchTerm"];
+export const orderFilterableFields = [
+  "status",
+  "paymentStatus",
+  "paymentMethod",
+  "searchTerm",
+];

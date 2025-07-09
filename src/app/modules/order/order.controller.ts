@@ -31,6 +31,7 @@ const createOrderController = async (req: Request, res: Response) => {
   }
 };
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.query);
   const filters = pick(req.query, orderFilterableFields);
   const options = pick(req.query, ["limit", "page", "sort", "priceRange"]);
   const result = await orderService.getAllOrders(filters, options);
@@ -38,7 +39,8 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "Orders retrieved successfully",
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 });
 
@@ -66,9 +68,31 @@ const getMyOrdersData = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updateOrderStatus = catchAsync(async (req, res) => {
+  const result = await orderService.updateOrderStatus(req.params.id, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Order Status is updated successfully",
+    data: result,
+  });
+});
+const deleteOrder = catchAsync(async (req, res) => {
+  const result = await orderService.deleteOrder(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Order is deleted successfully",
+    data: result,
+  });
+});
 export const OrderController = {
   createOrderController,
   getAllOrders,
   getMyOrdersData,
   getOrderById,
+  updateOrderStatus,
+  deleteOrder,
 };
