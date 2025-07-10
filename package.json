@@ -1,5 +1,5 @@
 {
-  "name": "assignment-8",
+  "name": "CycleWave API",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -33,6 +33,7 @@
     "express": "^4.19.2",
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
+    "sslcommerz-lts": "^1.1.0",
     "zod": "^3.22.4"
   }
 }

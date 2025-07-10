@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Confirmation</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #74ebd5, #acb6e5);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        background-color: #fff;
+        padding: 50px 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        max-width: 550px;
+        width: 90%;
+      }
+
+      h1 {
+        font-size: 30px;
+        margin-bottom: 15px;
+      }
+
+      .success {
+        color: #28a745;
+      }
+
+      .failed {
+        color: #dc3545;
+      }
+
+      p {
+        font-size: 17px;
+        color: #555;
+        margin: 15px 0;
+      }
+
+      .countdown {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px;
+        background: #eaeaea;
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+      }
+
+      .footer-info {
+        margin-top: 25px;
+        font-size: 14px;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="{{ statusClass }}">Success</h1>
+      <p>
+        Thank you for your payment attempt. We are processing the result and
+        will redirect you shortly.
+      </p>
+      <div class="countdown" id="countdown">Redirecting in 3...</div>
+      <div class="footer-info">
+        <p>
+          If you're not redirected automatically, please
+          <a id="manualLink" href="#">click here</a>.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const status = "success";
+      const redirectUrl =
+        status === "success"
+          ? "https://cycle-wave.vercel.app/my-orders"
+          : "https://cycle-wave.vercel.app";
+
+      document.getElementById("manualLink").href = redirectUrl;
+
+      let counter = 3;
+      const countdownEl = document.getElementById("countdown");
+
+      const interval = setInterval(() => {
+        counter--;
+        if (counter > 0) {
+          countdownEl.textContent = `Redirecting in ${counter}...`;
+        } else {
+          countdownEl.textContent = "Redirecting...";
+          clearInterval(interval);
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 500);
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

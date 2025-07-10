@@ -100,9 +100,18 @@ const deleteProduct = async (id: string) => {
     },
   });
 };
+const updateProduct = async (id: string, data: any) => {
+  return await prisma.product.update({
+    where: {
+      id,
+    },
+    data,
+  });
+};
 export const productsService = {
   getAllProductsFromDB,
   getProductById,
   createProduct,
   deleteProduct,
+  updateProduct,
 };

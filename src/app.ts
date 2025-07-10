@@ -29,7 +29,7 @@ app.use(
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
-    message: "welcome to , backend API!",
+    message: "welcome to , Cycle Wave backend API!",
   });
 });
 

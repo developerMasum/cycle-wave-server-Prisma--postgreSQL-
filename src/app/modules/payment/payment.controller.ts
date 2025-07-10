@@ -1,19 +1,20 @@
+import { join } from "path";
 import { Request, Response } from "express";
 import { paymentService } from "./payment.service";
-import { verifyPayment } from "./payment.utils";
 
 const confirmationController = async (req: Request, res: Response) => {
-  const { transactionId, status } = req.query;
-  const verifyResponse = await verifyPayment(
-    transactionId as string,
-    status as string
-  ); // console.log(verifyResponse);
-  const result = await paymentService.confirmationService(
-    req.query.transactionId as string,
-    req.query.status as string
-  );
-  res.send(result);
+  try {
+    const { orderId } = req.params;
+
+    await paymentService.verifyPayment(orderId);
+
+    // ✅ Send HTML file
+    const filePath = join(__dirname, "../../../views/confirmation.html");
+    return res.sendFile(filePath);
+  } catch (error: any) {
+    console.error("Error confirming payment:", error.message);
+    return res.status(500).send("Payment verification failed.");
+  }
 };
-export const paymentController = {
-  confirmationController,
-};
+
+export const paymentController = { confirmationController };
