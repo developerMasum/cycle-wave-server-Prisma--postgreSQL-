@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const store_id = "dhaka686f5bcb36e38";
-const store_passwd = "dhaka686f5bcb36e38@ssl";
+const store_id = process.env.STORE_ID;
+const store_passwd = process.env.STORE_PASSWORD;
 const is_live = false;
 const SSLCommerzPayment = require("sslcommerz-lts");
 export const initiatePayment = async (PaymentData: {
